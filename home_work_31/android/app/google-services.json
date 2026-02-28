@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "465543942574",
+    "project_id": "hw32-6bc34",
+    "storage_bucket": "hw32-6bc34.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:465543942574:android:24a6f91dba2f734025f83f",
+        "android_client_info": {
+          "package_name": "com.example.home_work_31"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVMIPg4BbNu_XdkwDUq5XGQ9ecE90WCHQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
