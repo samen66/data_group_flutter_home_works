@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Правила для коллекции notes
+    match /notes/{noteId} {
+      // Чтение и запись только для владельца (userId совпадает с auth.uid)
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      
+      // Создание: проверяем, что userId в данных совпадает с auth.uid
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Правила для коллекции tasks
+    match /tasks/{taskId} {
+      // Чтение и запись только для владельца (userId совпадает с auth.uid)
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      
+      // Создание: проверяем, что userId в данных совпадает с auth.uid
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+  }
+}

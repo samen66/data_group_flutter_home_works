@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/user_profile_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
+import '../../../../core/di/injection_container.dart' as di;
+import '../../../notes/presentation/pages/notes_list_page.dart';
+import '../../../notes/presentation/bloc/notes_bloc.dart';
 
 /// Домашняя страница (защищенная)
 class HomePage extends StatelessWidget {
@@ -62,6 +66,72 @@ class HomePage extends StatelessWidget {
                         title: const Text('Добро пожаловать!'),
                         subtitle: const Text('Вы успешно авторизованы'),
                       ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Card(
+                            child: ListTile(
+                              leading: const Icon(Icons.note),
+                              title: const Text('Заметки'),
+                              trailing: const Icon(Icons.arrow_forward_ios),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BlocProvider(
+                                      create: (context) {
+                                        final bloc = di.getIt<NotesBloc>();
+                                        final userId = firebase_auth.FirebaseAuth.instance.currentUser?.uid;
+                                        if (userId != null) {
+                                          bloc.setUserId(userId);
+                                        }
+                                        return bloc;
+                                      },
+                                      child: const NotesListPage(
+                                        collection: 'notes',
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Card(
+                            child: ListTile(
+                              leading: const Icon(Icons.task),
+                              title: const Text('Задачи'),
+                              trailing: const Icon(Icons.arrow_forward_ios),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BlocProvider(
+                                      create: (context) {
+                                        final bloc = di.getIt<NotesBloc>();
+                                        final userId = firebase_auth.FirebaseAuth.instance.currentUser?.uid;
+                                        if (userId != null) {
+                                          bloc.setUserId(userId);
+                                        }
+                                        return bloc;
+                                      },
+                                      child: const NotesListPage(
+                                        collection: 'tasks',
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

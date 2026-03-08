@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -13,6 +14,17 @@ import '../../features/auth/domain/usecases/reset_password.dart';
 import '../../features/auth/domain/usecases/sign_in_with_google.dart';
 import '../../features/auth/domain/usecases/get_current_user.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/notes/data/datasources/notes_remote_data_source.dart';
+import '../../features/notes/data/repositories/notes_repository_impl.dart';
+import '../../features/notes/domain/repositories/notes_repository.dart';
+import '../../features/notes/domain/usecases/create_note.dart';
+import '../../features/notes/domain/usecases/update_note.dart';
+import '../../features/notes/domain/usecases/delete_note.dart';
+import '../../features/notes/domain/usecases/get_notes_stream.dart';
+import '../../features/notes/domain/usecases/get_notes_paginated.dart';
+import '../../features/notes/domain/usecases/search_notes.dart';
+import '../../features/notes/domain/usecases/filter_notes.dart';
+import '../../features/notes/presentation/bloc/notes_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -27,6 +39,9 @@ Future<void> init() async {
 
   final googleSignIn = GoogleSignIn();
   getIt.registerLazySingleton(() => googleSignIn);
+
+  final firestore = FirebaseFirestore.instance;
+  getIt.registerLazySingleton(() => firestore);
 
   // Data sources
   getIt.registerLazySingleton<AuthRemoteDataSource>(
@@ -68,6 +83,44 @@ Future<void> init() async {
       signInWithGoogle: getIt(),
       getCurrentUser: getIt(),
       authRepository: getIt(),
+    ),
+  );
+
+  // Notes feature
+  // Data sources
+  getIt.registerLazySingleton<NotesRemoteDataSource>(
+    () => NotesRemoteDataSourceImpl(
+      firestore: getIt(),
+    ),
+  );
+
+  // Repository
+  getIt.registerLazySingleton<NotesRepository>(
+    () => NotesRepositoryImpl(
+      remoteDataSource: getIt(),
+    ),
+  );
+
+  // Use cases
+  getIt.registerLazySingleton(() => CreateNote(getIt()));
+  getIt.registerLazySingleton(() => UpdateNote(getIt()));
+  getIt.registerLazySingleton(() => DeleteNote(getIt()));
+  getIt.registerLazySingleton(() => GetNotesStream(getIt()));
+  getIt.registerLazySingleton(() => GetNotesPaginated(getIt()));
+  getIt.registerLazySingleton(() => SearchNotes(getIt()));
+  getIt.registerLazySingleton(() => FilterNotes(getIt()));
+
+  // Bloc
+  getIt.registerFactory(
+    () => NotesBloc(
+      createNote: getIt(),
+      updateNote: getIt(),
+      deleteNote: getIt(),
+      getNotesStream: getIt(),
+      getNotesPaginated: getIt(),
+      searchNotes: getIt(),
+      filterNotes: getIt(),
+      notesRepository: getIt(),
     ),
   );
 }
