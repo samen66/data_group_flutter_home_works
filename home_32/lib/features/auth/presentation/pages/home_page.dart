@@ -9,6 +9,8 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../notes/presentation/pages/notes_list_page.dart';
 import '../../../notes/presentation/bloc/notes_bloc.dart';
+import '../../../notifications/presentation/pages/notification_settings_page.dart';
+import '../../../notifications/presentation/bloc/notifications_bloc.dart';
 
 /// Домашняя страница (защищенная)
 class HomePage extends StatelessWidget {
@@ -132,6 +134,30 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.notifications),
+                        title: const Text('Настройки уведомлений'),
+                        trailing: const Icon(Icons.arrow_forward_ios),
+                        onTap: () {
+                          final userId = firebase_auth.FirebaseAuth.instance.currentUser?.uid;
+                          if (userId != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BlocProvider(
+                                  create: (context) => di.getIt<NotificationsBloc>(),
+                                  child: NotificationSettingsPage(userId: userId),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      ),
                     ),
                   ),
                 ],

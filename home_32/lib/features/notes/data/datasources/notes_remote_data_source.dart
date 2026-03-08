@@ -43,6 +43,11 @@ abstract class NotesRemoteDataSource {
     String? status,
     String? category,
   });
+
+  Future<NoteModel> getNoteById({
+    required String noteId,
+    required String collection,
+  });
 }
 
 /// Реализация источника данных для удаленной работы с заметками
@@ -220,6 +225,29 @@ class NotesRemoteDataSourceImpl implements NotesRemoteDataSource {
       throw _mapFirestoreException(e);
     } catch (e) {
       throw ServerException('Failed to filter notes: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<NoteModel> getNoteById({
+    required String noteId,
+    required String collection,
+  }) async {
+    try {
+      final doc = await firestore
+          .collection(collection)
+          .doc(noteId)
+          .get();
+
+      if (!doc.exists) {
+        throw ServerException('Note not found');
+      }
+
+      return NoteModel.fromFirestore(doc);
+    } on FirebaseException catch (e) {
+      throw _mapFirestoreException(e);
+    } catch (e) {
+      throw ServerException('Failed to get note: ${e.toString()}');
     }
   }
 

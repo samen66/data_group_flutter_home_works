@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +27,17 @@ import '../../features/notes/domain/usecases/get_notes_paginated.dart';
 import '../../features/notes/domain/usecases/search_notes.dart';
 import '../../features/notes/domain/usecases/filter_notes.dart';
 import '../../features/notes/presentation/bloc/notes_bloc.dart';
+import '../../core/services/fcm_service.dart';
+import '../../features/notifications/data/datasources/notifications_remote_data_source.dart';
+import '../../features/notifications/data/datasources/notifications_local_data_source.dart';
+import '../../features/notifications/data/repositories/notifications_repository_impl.dart';
+import '../../features/notifications/domain/repositories/notifications_repository.dart';
+import '../../features/notifications/domain/usecases/get_device_token.dart';
+import '../../features/notifications/domain/usecases/save_device_token.dart';
+import '../../features/notifications/domain/usecases/update_device_token.dart';
+import '../../features/notifications/domain/usecases/get_notification_settings.dart';
+import '../../features/notifications/domain/usecases/update_notification_settings.dart';
+import '../../features/notifications/presentation/bloc/notifications_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -42,6 +55,12 @@ Future<void> init() async {
 
   final firestore = FirebaseFirestore.instance;
   getIt.registerLazySingleton(() => firestore);
+
+  final firebaseMessaging = FirebaseMessaging.instance;
+  getIt.registerLazySingleton(() => firebaseMessaging);
+
+  final localNotifications = FlutterLocalNotificationsPlugin();
+  getIt.registerLazySingleton(() => localNotifications);
 
   // Data sources
   getIt.registerLazySingleton<AuthRemoteDataSource>(
@@ -121,6 +140,55 @@ Future<void> init() async {
       searchNotes: getIt(),
       filterNotes: getIt(),
       notesRepository: getIt(),
+    ),
+  );
+
+  // Notifications feature
+  // FCM Service
+  getIt.registerLazySingleton<FCMService>(
+    () => FCMService(
+      firebaseMessaging: getIt(),
+      localNotifications: getIt(),
+    ),
+  );
+
+  // Data sources
+  getIt.registerLazySingleton<NotificationsRemoteDataSource>(
+    () => NotificationsRemoteDataSourceImpl(
+      firestore: getIt(),
+    ),
+  );
+
+  getIt.registerLazySingleton<NotificationsLocalDataSource>(
+    () => NotificationsLocalDataSourceImpl(
+      sharedPreferences: getIt(),
+    ),
+  );
+
+  // Repository
+  getIt.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(
+      remoteDataSource: getIt(),
+      localDataSource: getIt(),
+    ),
+  );
+
+  // Use cases
+  getIt.registerLazySingleton(() => GetDeviceToken(getIt()));
+  getIt.registerLazySingleton(() => SaveDeviceToken(getIt()));
+  getIt.registerLazySingleton(() => UpdateDeviceToken(getIt()));
+  getIt.registerLazySingleton(() => GetNotificationSettings(getIt()));
+  getIt.registerLazySingleton(() => UpdateNotificationSettings(getIt()));
+
+  // Bloc
+  getIt.registerFactory(
+    () => NotificationsBloc(
+      getDeviceToken: getIt(),
+      saveDeviceToken: getIt(),
+      updateDeviceToken: getIt(),
+      getNotificationSettings: getIt(),
+      updateNotificationSettings: getIt(),
+      firebaseMessaging: getIt(),
     ),
   );
 }

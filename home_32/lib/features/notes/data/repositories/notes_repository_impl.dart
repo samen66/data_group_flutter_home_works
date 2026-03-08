@@ -183,4 +183,22 @@ class NotesRepositoryImpl implements NotesRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, NoteEntity>> getNoteById({
+    required String noteId,
+    required String collection,
+  }) async {
+    try {
+      final noteModel = await remoteDataSource.getNoteById(
+        noteId: noteId,
+        collection: collection,
+      );
+      return Right(noteModel.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

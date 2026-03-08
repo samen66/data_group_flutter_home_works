@@ -51,4 +51,10 @@ abstract class NotesRepository {
     NoteStatus? status,
     String? category,
   });
+
+  /// Получить заметку/задачу по ID
+  Future<Either<Failure, NoteEntity>> getNoteById({
+    required String noteId,
+    required String collection,
+  });
 }
