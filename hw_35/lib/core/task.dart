@@ -1,0 +1,19 @@
+class Task {
+  const Task({
+    required this.id,
+    required this.title,
+    this.completed = false,
+  });
+
+  final String id;
+  final String title;
+  final bool completed;
+
+  Task copyWith({String? id, String? title, bool? completed}) {
+    return Task(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      completed: completed ?? this.completed,
+    );
+  }
+}
