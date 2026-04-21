@@ -15,7 +15,12 @@ void main() {
       ),
     );
 
-    await tester.pumpWidget(MyApp(dependencies: testDependencies));
+    await tester.pumpWidget(
+      MyApp(
+        dependencies: testDependencies,
+        appTitle: 'Homework 41 Test',
+      ),
+    );
 
     expect(find.byKey(const Key('login_button')), findsOneWidget);
     expect(find.byKey(const Key('items_list')), findsNothing);

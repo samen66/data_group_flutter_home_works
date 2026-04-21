@@ -18,7 +18,12 @@ void main() {
       ),
     );
 
-    await tester.pumpWidget(MyApp(dependencies: dependencies));
+    await tester.pumpWidget(
+      MyApp(
+        dependencies: dependencies,
+        appTitle: 'Homework 41 Integration',
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('login_button')), findsOneWidget);

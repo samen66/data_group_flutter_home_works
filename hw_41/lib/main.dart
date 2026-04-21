@@ -5,37 +5,54 @@ import 'package:hw_41/src/data/fake_api_client.dart';
 import 'package:hw_41/src/data/in_memory_db.dart';
 
 void main() {
-  final AppDependencies dependencies = AppDependencies(
+  final AppDependencies dependencies = createDependencies();
+
+  runApp(MyApp(dependencies: dependencies, appTitle: 'Homework 41'));
+}
+
+AppDependencies createDependencies() {
+  return AppDependencies(
     repository: AppRepository(
       apiClient: FakeApiClient(),
       localDb: InMemoryDb(),
     ),
   );
-
-  runApp(MyApp(dependencies: dependencies));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({required this.dependencies, super.key});
+  const MyApp({
+    required this.dependencies,
+    required this.appTitle,
+    super.key,
+  });
 
   final AppDependencies dependencies;
+  final String appTitle;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Homework 41',
+      title: appTitle,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
       ),
-      home: HomeScreen(repository: dependencies.repository),
+      home: HomeScreen(
+        repository: dependencies.repository,
+        appTitle: appTitle,
+      ),
     );
   }
 }
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({required this.repository, super.key});
+  const HomeScreen({
+    required this.repository,
+    required this.appTitle,
+    super.key,
+  });
 
   final AppRepository repository;
+  final String appTitle;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -97,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Homework 41')),
+      appBar: AppBar(title: Text(widget.appTitle)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),

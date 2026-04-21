@@ -5,15 +5,19 @@ on:
     branches:
       - main
       - master
+    tags:
+      - "v*"
   pull_request:
   workflow_dispatch:
 
 jobs:
-  flutter-tests:
+  flutter-ci:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: hw_41
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,8 +30,20 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Run unit and widget tests
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
         run: flutter test
 
-      - name: Run integration tests
-        run: flutter test integration_test
+      - name: Build APK (dev debug)
+        run: flutter build apk --debug --flavor dev -t lib/main_dev.dart
+
+      - name: Build APK (prod debug)
+        run: flutter build apk --debug --flavor prod -t lib/main_prod.dart
+
+      - name: Build APK (dev release)
+        run: flutter build apk --release --flavor dev -t lib/main_dev.dart --build-number "${BUILD_NUMBER}"
+
+      - name: Build APK (prod release)
+        run: flutter build apk --release --flavor prod -t lib/main_prod.dart --build-number "${BUILD_NUMBER}"
